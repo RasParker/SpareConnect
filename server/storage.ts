@@ -93,7 +93,7 @@ export class MemStorage implements IStorage {
     const admin: User = {
       id: adminId,
       username: "admin",
-      password: "$2a$10$N5QjdQXCj8Qc4ZjY4K2YxeH.QqXrSx4YQkJ8Z7P2L9W4X6M1R8Y5G", // "admin123"
+      password: "admin123",
       email: "admin@partsfinder.com",
       role: "admin",
       createdAt: new Date()
@@ -105,7 +105,7 @@ export class MemStorage implements IStorage {
     const dealer1User: User = {
       id: dealer1UserId,
       username: "autopartsghana",
-      password: "$2a$10$N5QjdQXCj8Qc4ZjY4K2YxeH.QqXrSx4YQkJ8Z7P2L9W4X6M1R8Y5G", // "dealer123"
+      password: "dealer123",
       email: "contact@autopartsghana.com",
       role: "dealer",
       createdAt: new Date()
@@ -141,7 +141,7 @@ export class MemStorage implements IStorage {
       vehicleModel: "Camry",
       vehicleYear: "2020-2023",
       availability: "in_stock",
-      imageUrl: null,
+      imageUrl: "/uploads/image-1757875127652-621218824.jpg",
       createdAt: new Date()
     };
     this.parts.set(part1Id, part1);
