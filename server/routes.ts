@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import {
   insertUserSchema,
-  insertDealerSchema,
+  insertSellerSchema,
   insertPartSchema,
   insertSearchSchema,
   insertReviewSchema,
@@ -86,28 +86,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dealer routes
-  app.get("/api/dealers", async (req, res) => {
+  // Seller routes
+  app.get("/api/sellers", async (req, res) => {
     try {
-      const dealers = await storage.getAllDealers();
-      res.json(dealers);
+      const sellers = await storage.getAllSellers();
+      res.json(sellers);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  app.get("/api/dealers/:id", async (req, res) => {
+  app.get("/api/sellers/:id", async (req, res) => {
     try {
-      const dealer = await storage.getDealer(req.params.id);
-      if (!dealer) {
-        return res.status(404).json({ message: "Dealer not found" });
+      const seller = await storage.getSeller(req.params.id);
+      if (!seller) {
+        return res.status(404).json({ message: "Seller not found" });
       }
       
-      const parts = await storage.getPartsByDealerId(dealer.id);
-      const user = await storage.getUser(dealer.userId);
+      const parts = await storage.getPartsBySellerId(seller.id);
+      const user = await storage.getUser(seller.userId);
       
       res.json({
-        ...dealer,
+        ...seller,
         parts,
         user: user ? { username: user.username, email: user.email } : null
       });
@@ -116,45 +116,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/dealers", async (req, res) => {
+  app.post("/api/sellers", async (req, res) => {
     try {
-      const dealerData = insertDealerSchema.parse(req.body);
-      const dealer = await storage.createDealer(dealerData);
-      res.json(dealer);
+      const sellerData = insertSellerSchema.parse(req.body);
+      const seller = await storage.createSeller(sellerData);
+      res.json(seller);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
   });
 
-  app.put("/api/dealers/:id", async (req, res) => {
+  app.put("/api/sellers/:id", async (req, res) => {
     try {
       const updates = req.body;
-      const dealer = await storage.updateDealer(req.params.id, updates);
-      if (!dealer) {
-        return res.status(404).json({ message: "Dealer not found" });
+      const seller = await storage.updateSeller(req.params.id, updates);
+      if (!seller) {
+        return res.status(404).json({ message: "Seller not found" });
       }
-      res.json(dealer);
+      res.json(seller);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  app.post("/api/dealers/:id/verify", async (req, res) => {
+  app.post("/api/sellers/:id/verify", async (req, res) => {
     try {
-      const dealer = await storage.verifyDealer(req.params.id);
-      if (!dealer) {
-        return res.status(404).json({ message: "Dealer not found" });
+      const seller = await storage.verifySeller(req.params.id);
+      if (!seller) {
+        return res.status(404).json({ message: "Seller not found" });
       }
-      res.json(dealer);
+      res.json(seller);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
 
-  app.get("/api/dealers/pending/verification", async (req, res) => {
+  app.get("/api/sellers/pending/verification", async (req, res) => {
     try {
-      const dealers = await storage.getPendingDealers();
-      res.json(dealers);
+      const sellers = await storage.getPendingSellers();
+      res.json(sellers);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -163,17 +163,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Part routes
   app.get("/api/parts", async (req, res) => {
     try {
-      const { dealerId } = req.query;
-      if (dealerId) {
-        const parts = await storage.getPartsByDealerId(dealerId as string);
+      const { sellerId } = req.query;
+      if (sellerId) {
+        const parts = await storage.getPartsBySellerId(sellerId as string);
         return res.json(parts);
       }
       
-      // Return all parts if no dealer specified
-      const dealers = await storage.getAllDealers();
+      // Return all parts if no seller specified
+      const sellers = await storage.getAllSellers();
       const allParts = [];
-      for (const dealer of dealers) {
-        const parts = await storage.getPartsByDealerId(dealer.id);
+      for (const seller of sellers) {
+        const parts = await storage.getPartsBySellerId(seller.id);
         allParts.push(...parts);
       }
       res.json(allParts);
@@ -267,9 +267,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/reviews/:dealerId", async (req, res) => {
+  app.get("/api/reviews/:sellerId", async (req, res) => {
     try {
-      const reviews = await storage.getDealerReviews(req.params.dealerId);
+      const reviews = await storage.getSellerReviews(req.params.sellerId);
       res.json(reviews);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
