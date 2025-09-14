@@ -12,6 +12,7 @@ import {
 import { z } from "zod";
 import multer from 'multer';
 import path from 'path';
+import express from 'express';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -41,6 +42,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Serve uploaded images statically
+  app.use('/uploads', express.static(path.resolve('uploads')));
   
   // User routes
   app.post("/api/users", async (req, res) => {
