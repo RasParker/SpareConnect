@@ -12,9 +12,16 @@ import {
   type Contact, 
   type InsertContact,
   type DealerWithParts,
-  type SearchResult
+  type SearchResult,
+  users,
+  dealers,
+  parts,
+  searches,
+  reviews,
+  contacts
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, and, or, ilike, count, avg } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -67,152 +74,63 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private dealers: Map<string, Dealer>;
-  private parts: Map<string, Part>;
-  private searches: Map<string, Search>;
-  private reviews: Map<string, Review>;
-  private contacts: Map<string, Contact>;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.users = new Map();
-    this.dealers = new Map();
-    this.parts = new Map();
-    this.searches = new Map();
-    this.reviews = new Map();
-    this.contacts = new Map();
-    
-    // Initialize with some demo data
-    this.initializeDemoData();
+    // Database storage - no initialization needed
   }
 
-  private initializeDemoData() {
-    // Create demo admin user
-    const adminId = randomUUID();
-    const admin: User = {
-      id: adminId,
-      username: "admin",
-      password: "admin123",
-      email: "admin@partsfinder.com",
-      role: "admin",
-      createdAt: new Date()
-    };
-    this.users.set(adminId, admin);
-
-    // Create demo dealer users and dealers
-    const dealer1UserId = randomUUID();
-    const dealer1User: User = {
-      id: dealer1UserId,
-      username: "autopartsghana",
-      password: "dealer123",
-      email: "contact@autopartsghana.com",
-      role: "dealer",
-      createdAt: new Date()
-    };
-    this.users.set(dealer1UserId, dealer1User);
-
-    const dealer1Id = randomUUID();
-    const dealer1: Dealer = {
-      id: dealer1Id,
-      userId: dealer1UserId,
-      shopName: "Auto Parts Ghana",
-      description: "Specializing in Toyota and Honda parts since 2015",
-      address: "Shop 45, Abossey Okai Market",
-      phone: "+233201234567",
-      whatsapp: "+233201234567",
-      location: { lat: 5.5777, lng: -0.2309 },
-      verified: true,
-      rating: "4.8",
-      reviewCount: "124",
-      createdAt: new Date()
-    };
-    this.dealers.set(dealer1Id, dealer1);
-
-    // Create demo parts
-    const part1Id = randomUUID();
-    const part1: Part = {
-      id: part1Id,
-      dealerId: dealer1Id,
-      name: "Brake Pad Set - Front",
-      description: "High quality brake pads for Toyota Camry",
-      price: "180.00",
-      vehicleMake: "Toyota",
-      vehicleModel: "Camry",
-      vehicleYear: "2020-2023",
-      availability: "in_stock",
-      imageUrl: "/uploads/image-1757875127652-621218824.jpg",
-      createdAt: new Date()
-    };
-    this.parts.set(part1Id, part1);
-  }
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = {
-      ...insertUser,
-      id,
-      role: insertUser.role || "buyer",
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   // Dealer operations
   async getDealer(id: string): Promise<Dealer | undefined> {
-    return this.dealers.get(id);
+    const [dealer] = await db.select().from(dealers).where(eq(dealers.id, id)).limit(1);
+    return dealer;
   }
 
   async getDealerByUserId(userId: string): Promise<Dealer | undefined> {
-    return Array.from(this.dealers.values()).find(dealer => dealer.userId === userId);
+    const [dealer] = await db.select().from(dealers).where(eq(dealers.userId, userId)).limit(1);
+    return dealer;
   }
 
   async createDealer(insertDealer: InsertDealer): Promise<Dealer> {
-    const id = randomUUID();
-    const dealer: Dealer = {
-      ...insertDealer,
-      id,
-      description: insertDealer.description || null,
-      whatsapp: insertDealer.whatsapp || null,
-      location: insertDealer.location || null,
-      verified: false,
-      rating: "0",
-      reviewCount: "0",
-      createdAt: new Date()
-    };
-    this.dealers.set(id, dealer);
+    const [dealer] = await db.insert(dealers).values(insertDealer).returning();
     return dealer;
   }
 
   async updateDealer(id: string, updates: Partial<Dealer>): Promise<Dealer | undefined> {
-    const dealer = this.dealers.get(id);
-    if (!dealer) return undefined;
-    
-    const updatedDealer = { ...dealer, ...updates };
-    this.dealers.set(id, updatedDealer);
-    return updatedDealer;
+    const [dealer] = await db.update(dealers)
+      .set(updates)
+      .where(eq(dealers.id, id))
+      .returning();
+    return dealer;
   }
 
   async getAllDealers(): Promise<Dealer[]> {
-    return Array.from(this.dealers.values());
+    return await db.select().from(dealers);
   }
 
   async getPendingDealers(): Promise<Dealer[]> {
-    return Array.from(this.dealers.values()).filter(dealer => !dealer.verified);
+    return await db.select().from(dealers).where(eq(dealers.verified, false));
   }
 
   async verifyDealer(id: string): Promise<Dealer | undefined> {
@@ -221,41 +139,33 @@ export class MemStorage implements IStorage {
 
   // Part operations
   async getPart(id: string): Promise<Part | undefined> {
-    return this.parts.get(id);
+    const [part] = await db.select().from(parts).where(eq(parts.id, id)).limit(1);
+    return part;
   }
 
   async getPartsByDealerId(dealerId: string): Promise<Part[]> {
-    return Array.from(this.parts.values()).filter(part => part.dealerId === dealerId);
+    return await db.select().from(parts).where(eq(parts.dealerId, dealerId));
   }
 
   async createPart(insertPart: InsertPart): Promise<Part> {
-    const id = randomUUID();
-    const part: Part = {
+    const [part] = await db.insert(parts).values({
       ...insertPart,
-      id,
-      description: insertPart.description || null,
-      price: insertPart.price || null,
-      vehicleMake: insertPart.vehicleMake || null,
-      vehicleModel: insertPart.vehicleModel || null,
-      vehicleYear: insertPart.vehicleYear || null,
-      imageUrl: insertPart.imageUrl || null,
-      createdAt: new Date()
-    };
-    this.parts.set(id, part);
+      availability: insertPart.availability || 'in_stock'
+    }).returning();
     return part;
   }
 
   async updatePart(id: string, updates: Partial<Part>): Promise<Part | undefined> {
-    const part = this.parts.get(id);
-    if (!part) return undefined;
-    
-    const updatedPart = { ...part, ...updates };
-    this.parts.set(id, updatedPart);
-    return updatedPart;
+    const [part] = await db.update(parts)
+      .set(updates)
+      .where(eq(parts.id, id))
+      .returning();
+    return part;
   }
 
   async deletePart(id: string): Promise<boolean> {
-    return this.parts.delete(id);
+    const result = await db.delete(parts).where(eq(parts.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async searchParts(criteria: {
@@ -264,34 +174,38 @@ export class MemStorage implements IStorage {
     vehicleYear?: string;
     partName?: string;
   }): Promise<SearchResult[]> {
-    const parts = Array.from(this.parts.values()).filter(part => {
-      if (criteria.vehicleMake && part.vehicleMake?.toLowerCase() !== criteria.vehicleMake.toLowerCase()) {
-        return false;
-      }
-      if (criteria.vehicleModel && part.vehicleModel?.toLowerCase() !== criteria.vehicleModel.toLowerCase()) {
-        return false;
-      }
-      if (criteria.vehicleYear && !part.vehicleYear?.includes(criteria.vehicleYear)) {
-        return false;
-      }
-      if (criteria.partName && !part.name.toLowerCase().includes(criteria.partName.toLowerCase())) {
-        return false;
-      }
-      return true;
-    });
+    // Build WHERE conditions dynamically
+    const conditions = [];
+    if (criteria.vehicleMake) {
+      conditions.push(ilike(parts.vehicleMake, `%${criteria.vehicleMake}%`));
+    }
+    if (criteria.vehicleModel) {
+      conditions.push(ilike(parts.vehicleModel, `%${criteria.vehicleModel}%`));
+    }
+    if (criteria.vehicleYear) {
+      conditions.push(ilike(parts.vehicleYear, `%${criteria.vehicleYear}%`));
+    }
+    if (criteria.partName) {
+      conditions.push(ilike(parts.name, `%${criteria.partName}%`));
+    }
 
-    const dealerPartsMap = new Map<string, { dealer: Dealer; matchingParts: Part[] }>();
+    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+    const matchingParts = await db.select().from(parts)
+      .where(whereCondition);
 
-    for (const part of parts) {
-      const dealer = this.dealers.get(part.dealerId);
+    const dealerPartsMap = new Map<string, { dealer: DealerWithParts; matchingParts: Part[] }>();
+
+    for (const part of matchingParts) {
+      const dealer = await this.getDealer(part.dealerId);
       if (!dealer) continue;
 
-      const user = this.users.get(dealer.userId);
+      const user = await this.getUser(dealer.userId);
       if (!user) continue;
 
+      const allDealerParts = await this.getPartsByDealerId(dealer.id);
       const dealerWithParts: DealerWithParts = {
         ...dealer,
-        parts: await this.getPartsByDealerId(dealer.id),
+        parts: allDealerParts,
         user: { username: user.username, email: user.email }
       };
 
@@ -305,44 +219,22 @@ export class MemStorage implements IStorage {
       }
     }
 
-    return Array.from(dealerPartsMap.values()).map(({ dealer, matchingParts }) => ({
-      dealer,
-      matchingParts
-    }));
+    return Array.from(dealerPartsMap.values());
   }
 
   // Search operations
   async createSearch(insertSearch: InsertSearch): Promise<Search> {
-    const id = randomUUID();
-    const search: Search = {
-      ...insertSearch,
-      id,
-      userId: insertSearch.userId || null,
-      vehicleMake: insertSearch.vehicleMake || null,
-      vehicleModel: insertSearch.vehicleModel || null,
-      vehicleYear: insertSearch.vehicleYear || null,
-      partName: insertSearch.partName || null,
-      imageUrl: insertSearch.imageUrl || null,
-      createdAt: new Date()
-    };
-    this.searches.set(id, search);
+    const [search] = await db.insert(searches).values(insertSearch).returning();
     return search;
   }
 
   async getUserSearches(userId: string): Promise<Search[]> {
-    return Array.from(this.searches.values()).filter(search => search.userId === userId);
+    return await db.select().from(searches).where(eq(searches.userId, userId));
   }
 
   // Review operations
   async createReview(insertReview: InsertReview): Promise<Review> {
-    const id = randomUUID();
-    const review: Review = {
-      ...insertReview,
-      id,
-      comment: insertReview.comment || null,
-      createdAt: new Date()
-    };
-    this.reviews.set(id, review);
+    const [review] = await db.insert(reviews).values(insertReview).returning();
     
     // Update dealer rating
     await this.updateDealerRating(insertReview.dealerId);
@@ -351,36 +243,30 @@ export class MemStorage implements IStorage {
   }
 
   async getDealerReviews(dealerId: string): Promise<Review[]> {
-    return Array.from(this.reviews.values()).filter(review => review.dealerId === dealerId);
+    return await db.select().from(reviews).where(eq(reviews.dealerId, dealerId));
   }
 
   async updateDealerRating(dealerId: string): Promise<void> {
-    const reviews = await this.getDealerReviews(dealerId);
-    if (reviews.length === 0) return;
+    const dealerReviews = await this.getDealerReviews(dealerId);
+    if (dealerReviews.length === 0) return;
 
-    const totalRating = reviews.reduce((sum, review) => sum + parseFloat(review.rating.toString()), 0);
-    const avgRating = totalRating / reviews.length;
+    const totalRating = dealerReviews.reduce((sum, review) => sum + parseFloat(review.rating.toString()), 0);
+    const avgRating = totalRating / dealerReviews.length;
 
     await this.updateDealer(dealerId, {
       rating: avgRating.toFixed(2),
-      reviewCount: reviews.length.toString()
+      reviewCount: dealerReviews.length.toString()
     });
   }
 
   // Contact operations
   async createContact(insertContact: InsertContact): Promise<Contact> {
-    const id = randomUUID();
-    const contact: Contact = {
-      ...insertContact,
-      id,
-      createdAt: new Date()
-    };
-    this.contacts.set(id, contact);
+    const [contact] = await db.insert(contacts).values(insertContact).returning();
     return contact;
   }
 
   async getDealerContacts(dealerId: string): Promise<Contact[]> {
-    return Array.from(this.contacts.values()).filter(contact => contact.dealerId === dealerId);
+    return await db.select().from(contacts).where(eq(contacts.dealerId, dealerId));
   }
 
   // Analytics
@@ -390,13 +276,19 @@ export class MemStorage implements IStorage {
     totalSearches: number;
     pendingVerifications: number;
   }> {
+    const [{ totalDealers }] = await db.select({ totalDealers: count() }).from(dealers);
+    const [{ totalParts }] = await db.select({ totalParts: count() }).from(parts);
+    const [{ totalSearches }] = await db.select({ totalSearches: count() }).from(searches);
+    const [{ pendingVerifications }] = await db.select({ pendingVerifications: count() })
+      .from(dealers).where(eq(dealers.verified, false));
+
     return {
-      totalDealers: this.dealers.size,
-      totalParts: this.parts.size,
-      totalSearches: this.searches.size,
-      pendingVerifications: Array.from(this.dealers.values()).filter(d => !d.verified).length
+      totalDealers,
+      totalParts,
+      totalSearches,
+      pendingVerifications
     };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
