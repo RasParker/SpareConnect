@@ -1,8 +1,8 @@
 import { 
   type User, 
   type InsertUser, 
-  type Dealer, 
-  type InsertDealer,
+  type Seller, 
+  type InsertSeller,
   type Part, 
   type InsertPart,
   type Search, 
@@ -11,10 +11,10 @@ import {
   type InsertReview,
   type Contact, 
   type InsertContact,
-  type DealerWithParts,
+  type SellerWithParts,
   type SearchResult,
   users,
-  dealers,
+  sellers,
   parts,
   searches,
   reviews,
@@ -30,18 +30,18 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  // Dealer operations
-  getDealer(id: string): Promise<Dealer | undefined>;
-  getDealerByUserId(userId: string): Promise<Dealer | undefined>;
-  createDealer(dealer: InsertDealer): Promise<Dealer>;
-  updateDealer(id: string, updates: Partial<Dealer>): Promise<Dealer | undefined>;
-  getAllDealers(): Promise<Dealer[]>;
-  getPendingDealers(): Promise<Dealer[]>;
-  verifyDealer(id: string): Promise<Dealer | undefined>;
+  // Seller operations
+  getSeller(id: string): Promise<Seller | undefined>;
+  getSellerByUserId(userId: string): Promise<Seller | undefined>;
+  createSeller(seller: InsertSeller): Promise<Seller>;
+  updateSeller(id: string, updates: Partial<Seller>): Promise<Seller | undefined>;
+  getAllSellers(): Promise<Seller[]>;
+  getPendingSellers(): Promise<Seller[]>;
+  verifySeller(id: string): Promise<Seller | undefined>;
   
   // Part operations
   getPart(id: string): Promise<Part | undefined>;
-  getPartsByDealerId(dealerId: string): Promise<Part[]>;
+  getPartsBySellerId(sellerId: string): Promise<Part[]>;
   createPart(part: InsertPart): Promise<Part>;
   updatePart(id: string, updates: Partial<Part>): Promise<Part | undefined>;
   deletePart(id: string): Promise<boolean>;
@@ -58,16 +58,16 @@ export interface IStorage {
   
   // Review operations
   createReview(review: InsertReview): Promise<Review>;
-  getDealerReviews(dealerId: string): Promise<Review[]>;
-  updateDealerRating(dealerId: string): Promise<void>;
+  getSellerReviews(sellerId: string): Promise<Review[]>;
+  updateSellerRating(sellerId: string): Promise<void>;
   
   // Contact operations
   createContact(contact: InsertContact): Promise<Contact>;
-  getDealerContacts(dealerId: string): Promise<Contact[]>;
+  getSellerContacts(sellerId: string): Promise<Contact[]>;
   
   // Analytics
   getAnalytics(): Promise<{
-    totalDealers: number;
+    totalSellers: number;
     totalParts: number;
     totalSearches: number;
     pendingVerifications: number;
@@ -101,40 +101,40 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  // Dealer operations
-  async getDealer(id: string): Promise<Dealer | undefined> {
-    const [dealer] = await db.select().from(dealers).where(eq(dealers.id, id)).limit(1);
-    return dealer;
+  // Seller operations
+  async getSeller(id: string): Promise<Seller | undefined> {
+    const [seller] = await db.select().from(sellers).where(eq(sellers.id, id)).limit(1);
+    return seller;
   }
 
-  async getDealerByUserId(userId: string): Promise<Dealer | undefined> {
-    const [dealer] = await db.select().from(dealers).where(eq(dealers.userId, userId)).limit(1);
-    return dealer;
+  async getSellerByUserId(userId: string): Promise<Seller | undefined> {
+    const [seller] = await db.select().from(sellers).where(eq(sellers.userId, userId)).limit(1);
+    return seller;
   }
 
-  async createDealer(insertDealer: InsertDealer): Promise<Dealer> {
-    const [dealer] = await db.insert(dealers).values(insertDealer).returning();
-    return dealer;
+  async createSeller(insertSeller: InsertSeller): Promise<Seller> {
+    const [seller] = await db.insert(sellers).values(insertSeller).returning();
+    return seller;
   }
 
-  async updateDealer(id: string, updates: Partial<Dealer>): Promise<Dealer | undefined> {
-    const [dealer] = await db.update(dealers)
+  async updateSeller(id: string, updates: Partial<Seller>): Promise<Seller | undefined> {
+    const [seller] = await db.update(sellers)
       .set(updates)
-      .where(eq(dealers.id, id))
+      .where(eq(sellers.id, id))
       .returning();
-    return dealer;
+    return seller;
   }
 
-  async getAllDealers(): Promise<Dealer[]> {
-    return await db.select().from(dealers);
+  async getAllSellers(): Promise<Seller[]> {
+    return await db.select().from(sellers);
   }
 
-  async getPendingDealers(): Promise<Dealer[]> {
-    return await db.select().from(dealers).where(eq(dealers.verified, false));
+  async getPendingSellers(): Promise<Seller[]> {
+    return await db.select().from(sellers).where(eq(sellers.verified, false));
   }
 
-  async verifyDealer(id: string): Promise<Dealer | undefined> {
-    return this.updateDealer(id, { verified: true });
+  async verifySeller(id: string): Promise<Seller | undefined> {
+    return this.updateSeller(id, { verified: true });
   }
 
   // Part operations
@@ -143,8 +143,8 @@ export class DatabaseStorage implements IStorage {
     return part;
   }
 
-  async getPartsByDealerId(dealerId: string): Promise<Part[]> {
-    return await db.select().from(parts).where(eq(parts.dealerId, dealerId));
+  async getPartsBySellerId(sellerId: string): Promise<Part[]> {
+    return await db.select().from(parts).where(eq(parts.sellerId, sellerId));
   }
 
   async createPart(insertPart: InsertPart): Promise<Part> {
@@ -193,33 +193,33 @@ export class DatabaseStorage implements IStorage {
     const matchingParts = await db.select().from(parts)
       .where(whereCondition);
 
-    const dealerPartsMap = new Map<string, { dealer: DealerWithParts; matchingParts: Part[] }>();
+    const sellerPartsMap = new Map<string, { seller: SellerWithParts; matchingParts: Part[] }>();
 
     for (const part of matchingParts) {
-      const dealer = await this.getDealer(part.dealerId);
-      if (!dealer) continue;
+      const seller = await this.getSeller(part.sellerId);
+      if (!seller) continue;
 
-      const user = await this.getUser(dealer.userId);
+      const user = await this.getUser(seller.userId);
       if (!user) continue;
 
-      const allDealerParts = await this.getPartsByDealerId(dealer.id);
-      const dealerWithParts: DealerWithParts = {
-        ...dealer,
-        parts: allDealerParts,
+      const allSellerParts = await this.getPartsBySellerId(seller.id);
+      const sellerWithParts: SellerWithParts = {
+        ...seller,
+        parts: allSellerParts,
         user: { username: user.username, email: user.email }
       };
 
-      if (dealerPartsMap.has(dealer.id)) {
-        dealerPartsMap.get(dealer.id)!.matchingParts.push(part);
+      if (sellerPartsMap.has(seller.id)) {
+        sellerPartsMap.get(seller.id)!.matchingParts.push(part);
       } else {
-        dealerPartsMap.set(dealer.id, {
-          dealer: dealerWithParts,
+        sellerPartsMap.set(seller.id, {
+          seller: sellerWithParts,
           matchingParts: [part]
         });
       }
     }
 
-    return Array.from(dealerPartsMap.values());
+    return Array.from(sellerPartsMap.values());
   }
 
   // Search operations
@@ -236,26 +236,26 @@ export class DatabaseStorage implements IStorage {
   async createReview(insertReview: InsertReview): Promise<Review> {
     const [review] = await db.insert(reviews).values(insertReview).returning();
     
-    // Update dealer rating
-    await this.updateDealerRating(insertReview.dealerId);
+    // Update seller rating
+    await this.updateSellerRating(insertReview.sellerId);
     
     return review;
   }
 
-  async getDealerReviews(dealerId: string): Promise<Review[]> {
-    return await db.select().from(reviews).where(eq(reviews.dealerId, dealerId));
+  async getSellerReviews(sellerId: string): Promise<Review[]> {
+    return await db.select().from(reviews).where(eq(reviews.sellerId, sellerId));
   }
 
-  async updateDealerRating(dealerId: string): Promise<void> {
-    const dealerReviews = await this.getDealerReviews(dealerId);
-    if (dealerReviews.length === 0) return;
+  async updateSellerRating(sellerId: string): Promise<void> {
+    const sellerReviews = await this.getSellerReviews(sellerId);
+    if (sellerReviews.length === 0) return;
 
-    const totalRating = dealerReviews.reduce((sum, review) => sum + parseFloat(review.rating.toString()), 0);
-    const avgRating = totalRating / dealerReviews.length;
+    const totalRating = sellerReviews.reduce((sum, review) => sum + parseFloat(review.rating.toString()), 0);
+    const avgRating = totalRating / sellerReviews.length;
 
-    await this.updateDealer(dealerId, {
+    await this.updateSeller(sellerId, {
       rating: avgRating.toFixed(2),
-      reviewCount: dealerReviews.length.toString()
+      reviewCount: sellerReviews.length.toString()
     });
   }
 
@@ -265,25 +265,25 @@ export class DatabaseStorage implements IStorage {
     return contact;
   }
 
-  async getDealerContacts(dealerId: string): Promise<Contact[]> {
-    return await db.select().from(contacts).where(eq(contacts.dealerId, dealerId));
+  async getSellerContacts(sellerId: string): Promise<Contact[]> {
+    return await db.select().from(contacts).where(eq(contacts.sellerId, sellerId));
   }
 
   // Analytics
   async getAnalytics(): Promise<{
-    totalDealers: number;
+    totalSellers: number;
     totalParts: number;
     totalSearches: number;
     pendingVerifications: number;
   }> {
-    const [{ totalDealers }] = await db.select({ totalDealers: count() }).from(dealers);
+    const [{ totalSellers }] = await db.select({ totalSellers: count() }).from(sellers);
     const [{ totalParts }] = await db.select({ totalParts: count() }).from(parts);
     const [{ totalSearches }] = await db.select({ totalSearches: count() }).from(searches);
     const [{ pendingVerifications }] = await db.select({ pendingVerifications: count() })
-      .from(dealers).where(eq(dealers.verified, false));
+      .from(sellers).where(eq(sellers.verified, false));
 
     return {
-      totalDealers,
+      totalSellers,
       totalParts,
       totalSearches,
       pendingVerifications
