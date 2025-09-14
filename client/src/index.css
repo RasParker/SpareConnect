@@ -105,11 +105,11 @@
     background: linear-gradient(135deg, hsl(9, 75%, 61% / 0.1), hsl(25, 45%, 20% / 0.1));
   }
 
-  .dealer-card {
+  .seller-card {
     transition: all 0.2s ease;
   }
 
-  .dealer-card:hover {
+  .seller-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }

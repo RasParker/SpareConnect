@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import BottomNav from "@/components/layout/bottom-nav";
-import DealerCard from "@/components/dealer-card";
+import SellerCard from "@/components/seller-card";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,14 +31,14 @@ export default function SearchResults() {
     },
   });
 
-  const handleContactDealer = (dealerId: string, type: "whatsapp" | "call") => {
+  const handleContactSeller = (sellerId: string, type: "whatsapp" | "call") => {
     // Handle contact logic
-    console.log(`Contact dealer ${dealerId} via ${type}`);
+    console.log(`Contact seller ${sellerId} via ${type}`);
   };
 
-  const handleViewProfile = (dealerId: string) => {
-    // Navigate to dealer profile
-    console.log(`View profile for dealer ${dealerId}`);
+  const handleViewProfile = (sellerId: string) => {
+    // Navigate to seller profile
+    console.log(`View profile for seller ${sellerId}`);
   };
 
   if (isLoading) {
@@ -109,7 +109,7 @@ export default function SearchResults() {
         <section className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold" data-testid="text-results-count">
-              Found {results?.length || 0} dealer{results?.length !== 1 ? 's' : ''}
+              Found {results?.length || 0} seller{results?.length !== 1 ? 's' : ''}
             </h3>
             <Button variant="outline" size="sm" className="text-primary">
               <Map className="w-4 h-4 mr-1" />
@@ -120,17 +120,17 @@ export default function SearchResults() {
           {results && results.length > 0 ? (
             <div className="space-y-4">
               {results.map((result) => (
-                <DealerCard
-                  key={result.dealer.id}
+                <SellerCard
+                  key={result.seller.id}
                   searchResult={result}
-                  onContactDealer={handleContactDealer}
+                  onContactSeller={handleContactSeller}
                   onViewProfile={handleViewProfile}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No dealers found matching your criteria</p>
+              <p className="text-muted-foreground">No sellers found matching your criteria</p>
               <p className="text-sm text-muted-foreground mt-1">Try adjusting your search terms</p>
             </div>
           )}

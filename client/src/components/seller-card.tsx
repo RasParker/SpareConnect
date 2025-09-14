@@ -5,26 +5,26 @@ import { useAuth } from "@/lib/auth";
 import type { SearchResult } from "@shared/schema";
 import { AVAILABILITY_OPTIONS } from "@/lib/constants";
 
-interface DealerCardProps {
+interface SellerCardProps {
   searchResult: SearchResult;
-  onContactDealer: (dealerId: string, type: "whatsapp" | "call") => void;
-  onViewProfile: (dealerId: string) => void;
+  onContactSeller: (sellerId: string, type: "whatsapp" | "call") => void;
+  onViewProfile: (sellerId: string) => void;
 }
 
-export default function DealerCard({ searchResult, onContactDealer, onViewProfile }: DealerCardProps) {
-  const { dealer, matchingParts } = searchResult;
+export default function SellerCard({ searchResult, onContactSeller, onViewProfile }: SellerCardProps) {
+  const { seller, matchingParts } = searchResult;
   const { user } = useAuth();
 
   const handleContact = (type: "whatsapp" | "call") => {
     if (user) {
-      onContactDealer(dealer.id, type);
+      onContactSeller(seller.id, type);
     }
     
     // Open appropriate contact method
-    if (type === "whatsapp" && dealer.whatsapp) {
-      window.open(`https://wa.me/${dealer.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
+    if (type === "whatsapp" && seller.whatsapp) {
+      window.open(`https://wa.me/${seller.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
     } else if (type === "call") {
-      window.location.href = `tel:${dealer.phone}`;
+      window.location.href = `tel:${seller.phone}`;
     }
   };
 
@@ -39,7 +39,7 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
   };
 
   return (
-    <div className="dealer-card bg-card rounded-lg p-4 border border-border" data-testid={`card-dealer-${dealer.id}`}>
+    <div className="seller-card bg-card rounded-lg p-4 border border-border" data-testid={`card-seller-${seller.id}`}>
       <div className="flex items-start space-x-4">
         <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
           <Store className="text-primary" />
@@ -47,10 +47,10 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
         
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <h4 className="font-semibold" data-testid={`text-dealer-name-${dealer.id}`}>
-              {dealer.shopName}
+            <h4 className="font-semibold" data-testid={`text-seller-name-${seller.id}`}>
+              {seller.shopName}
             </h4>
-            {dealer.verified && (
+            {seller.verified && (
               <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Verified
@@ -60,14 +60,14 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
           
           <div className="flex items-center text-sm text-muted-foreground mb-2">
             <Star className="text-yellow-400 w-4 h-4 mr-1" />
-            <span data-testid={`text-rating-${dealer.id}`}>{dealer.rating}</span>
+            <span data-testid={`text-rating-${seller.id}`}>{seller.rating}</span>
             <span className="mx-1">•</span>
-            <span data-testid={`text-review-count-${dealer.id}`}>{dealer.reviewCount} reviews</span>
+            <span data-testid={`text-review-count-${seller.id}`}>{seller.reviewCount} reviews</span>
           </div>
           
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 mr-1" />
-            <span data-testid={`text-address-${dealer.id}`}>{dealer.address}</span>
+            <span data-testid={`text-address-${seller.id}`}>{seller.address}</span>
           </div>
 
           {/* Available Parts */}
@@ -102,7 +102,7 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
               size="sm"
               className="contact-button flex-1 bg-green-600 hover:bg-green-700 text-white font-medium"
               onClick={() => handleContact("whatsapp")}
-              data-testid={`button-whatsapp-${dealer.id}`}
+              data-testid={`button-whatsapp-${seller.id}`}
             >
               <MessageCircle className="w-4 h-4 mr-1" />
               WhatsApp
@@ -112,7 +112,7 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
               size="sm"
               className="contact-button flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium"
               onClick={() => handleContact("call")}
-              data-testid={`button-call-${dealer.id}`}
+              data-testid={`button-call-${seller.id}`}
             >
               <Phone className="w-4 h-4 mr-1" />
               Call
@@ -122,8 +122,8 @@ export default function DealerCard({ searchResult, onContactDealer, onViewProfil
               size="sm"
               variant="outline"
               className="contact-button px-3 bg-muted hover:bg-accent"
-              onClick={() => onViewProfile(dealer.id)}
-              data-testid={`button-view-profile-${dealer.id}`}
+              onClick={() => onViewProfile(seller.id)}
+              data-testid={`button-view-profile-${seller.id}`}
             >
               <ArrowRight className="w-4 h-4" />
             </Button>

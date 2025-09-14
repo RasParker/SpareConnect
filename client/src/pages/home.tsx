@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import Header from "@/components/layout/header";
 import BottomNav from "@/components/layout/bottom-nav";
 import SearchForm from "@/components/search-form";
-import DealerCard from "@/components/dealer-card";
+import SellerCard from "@/components/seller-card";
 import { Map, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,7 +58,7 @@ export default function Home() {
   });
 
   const contactMutation = useMutation({
-    mutationFn: async ({ dealerId, type }: { dealerId: string; type: string }) => {
+    mutationFn: async ({ sellerId, type }: { sellerId: string; type: string }) => {
       const response = await fetch("/api/contacts", {
         method: "POST",
         headers: {
@@ -66,7 +66,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           userId: user?.id,
-          dealerId,
+          sellerId,
           type,
         }),
       });
@@ -83,15 +83,15 @@ export default function Home() {
     searchMutation.mutate(searchData);
   };
 
-  const handleContactDealer = (dealerId: string, type: "whatsapp" | "call") => {
+  const handleContactSeller = (sellerId: string, type: "whatsapp" | "call") => {
     if (user) {
-      contactMutation.mutate({ dealerId, type });
+      contactMutation.mutate({ sellerId, type });
     }
   };
 
-  const handleViewProfile = (dealerId: string) => {
+  const handleViewProfile = (sellerId: string) => {
     if (user) {
-      contactMutation.mutate({ dealerId, type: "profile_view" });
+      contactMutation.mutate({ sellerId, type: "profile_view" });
     }
     // Navigation will be handled by the Link component
   };
@@ -110,7 +110,7 @@ export default function Home() {
           <section className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" data-testid="text-results-count">
-                Found {searchResults.length} dealer{searchResults.length !== 1 ? 's' : ''}
+                Found {searchResults.length} seller{searchResults.length !== 1 ? 's' : ''}
               </h3>
               <Button variant="outline" size="sm" className="text-primary">
                 <Map className="w-4 h-4 mr-1" />
@@ -120,10 +120,10 @@ export default function Home() {
 
             <div className="space-y-4">
               {searchResults.map((result) => (
-                <DealerCard
-                  key={result.dealer.id}
+                <SellerCard
+                  key={result.seller.id}
                   searchResult={result}
-                  onContactDealer={handleContactDealer}
+                  onContactSeller={handleContactSeller}
                   onViewProfile={handleViewProfile}
                 />
               ))}
@@ -135,14 +135,14 @@ export default function Home() {
                   <CardHeader className="border-b border-border">
                     <CardTitle className="flex items-center text-base">
                       <Map className="w-5 h-5 mr-2 text-primary" />
-                      Dealer Locations
+                      Seller Locations
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="map-container h-48 flex items-center justify-center text-muted-foreground">
                       <div className="text-center">
                         <MapPin className="w-8 h-8 mb-2 mx-auto" />
-                        <p className="text-sm">Interactive map showing dealer locations</p>
+                        <p className="text-sm">Interactive map showing seller locations</p>
                         <p className="text-xs mt-1">Map integration pending</p>
                       </div>
                     </div>
