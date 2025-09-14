@@ -8,11 +8,11 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
-  role: text("role").notNull().default("buyer"), // buyer, dealer, admin
+  role: text("role").notNull().default("buyer"), // buyer, seller, admin
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const dealers = pgTable("dealers", {
+export const sellers = pgTable("sellers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
   shopName: text("shop_name").notNull(),
@@ -29,7 +29,7 @@ export const dealers = pgTable("dealers", {
 
 export const parts = pgTable("parts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  dealerId: varchar("dealer_id").references(() => dealers.id).notNull(),
+  sellerId: varchar("seller_id").references(() => sellers.id).notNull(),
   name: text("name").notNull(),
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }),
@@ -55,7 +55,7 @@ export const searches = pgTable("searches", {
 export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  dealerId: varchar("dealer_id").references(() => dealers.id).notNull(),
+  sellerId: varchar("seller_id").references(() => sellers.id).notNull(),
   rating: decimal("rating", { precision: 2, scale: 1 }).notNull(),
   comment: text("comment"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -64,7 +64,7 @@ export const reviews = pgTable("reviews", {
 export const contacts = pgTable("contacts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  dealerId: varchar("dealer_id").references(() => dealers.id).notNull(),
+  sellerId: varchar("seller_id").references(() => sellers.id).notNull(),
   type: text("type").notNull(), // whatsapp, call, profile_view
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -77,7 +77,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   role: true,
 });
 
-export const insertDealerSchema = createInsertSchema(dealers).omit({
+export const insertSellerSchema = createInsertSchema(sellers).omit({
   id: true,
   verified: true,
   rating: true,
@@ -108,8 +108,8 @@ export const insertContactSchema = createInsertSchema(contacts).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type Dealer = typeof dealers.$inferSelect;
-export type InsertDealer = z.infer<typeof insertDealerSchema>;
+export type Seller = typeof sellers.$inferSelect;
+export type InsertSeller = z.infer<typeof insertSellerSchema>;
 export type Part = typeof parts.$inferSelect;
 export type InsertPart = z.infer<typeof insertPartSchema>;
 export type Search = typeof searches.$inferSelect;
@@ -120,12 +120,12 @@ export type Contact = typeof contacts.$inferSelect;
 export type InsertContact = z.infer<typeof insertContactSchema>;
 
 // Extended types for API responses
-export type DealerWithParts = Dealer & {
+export type SellerWithParts = Seller & {
   parts: Part[];
   user: Pick<User, 'username' | 'email'>;
 };
 
 export type SearchResult = {
-  dealer: DealerWithParts;
+  seller: SellerWithParts;
   matchingParts: Part[];
 };
