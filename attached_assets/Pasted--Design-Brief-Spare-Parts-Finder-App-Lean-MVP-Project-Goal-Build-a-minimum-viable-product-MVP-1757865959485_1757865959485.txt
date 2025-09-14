@@ -1,0 +1,99 @@
+📝 Design Brief: Spare Parts Finder App (Lean MVP)
+Project Goal
+
+Build a minimum viable product (MVP) mobile/web app that connects spare parts buyers with dealers at Abossey Okai (Accra, Ghana). The app should make it easier for buyers to search for vehicle parts and connect directly with dealers, reducing the need for physical shop-to-shop searching.
+
+Core Features (MVP)
+1. Buyer-Side
+
+Search Functionality
+
+Buyers can search by:
+
+Vehicle Make/Model/Year
+
+Part name (text input)
+
+Optional: upload a photo of the part (stored for dealer reference).
+
+Dealer Listings
+
+Display a list of relevant dealers offering the part.
+
+Show dealer name, shop location (map pin + address), phone/WhatsApp contact.
+
+Contact Dealer
+
+One-click option to call or message dealer (e.g., via WhatsApp or in-app messaging).
+
+2. Dealer-Side
+
+Dealer Profiles
+
+Shop name, description, location (map), contact details.
+
+Basic Part Listings
+
+Dealers can upload a few part listings with:
+
+Part photo
+
+Part name
+
+Price (optional)
+
+Availability (in stock / out of stock).
+
+3. Trust & Verification
+
+Add a simple “Verified Dealer” badge (can be set manually by admin).
+
+Allow buyers to leave a star rating after interacting with a dealer.
+
+4. Admin Features
+
+Admin dashboard to:
+
+Approve/verify dealer accounts.
+
+Manage reported listings.
+
+View analytics (number of searches, dealer interactions).
+
+Non-Functional Requirements
+
+Simple UX/UI: Must be usable by non-tech-savvy traders and buyers.
+
+Lightweight: Should load fast, even on slower networks.
+
+Mobile-first: Prioritize mobile usability (most buyers/dealers will use smartphones).
+
+Future (Not MVP, Just Roadmap)
+
+Integrated payments (MoMo, Paystack).
+
+Delivery option (courier integration).
+
+Warranty/warranty-tagged parts.
+
+Full inventory syncing.
+
+User Flow (MVP)
+
+Buyer opens app → enters car model & part name.
+
+System displays dealers → dealer profiles + part listings.
+
+Buyer clicks contact dealer → call/WhatsApp/chat.
+
+(Optional) Buyer leaves rating.
+
+Success Criteria
+
+Buyers can find at least one matching dealer for a part search.
+
+Dealers can list and update a few parts easily.
+
+Admin can verify and manage dealers.
+
+⚡️ Keep it lean: focus only on search, dealer profiles, and contact in this first version.
