@@ -7,15 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Dealer } from "@shared/schema";
+import type { Seller } from "@shared/schema";
 
 export default function Dealers() {
-  const { data: dealers = [], isLoading, error } = useQuery<Dealer[]>({
-    queryKey: ['/api/dealers'],
+  const { data: sellers = [], isLoading, error } = useQuery<Seller[]>({
+    queryKey: ['/api/sellers'],
   });
 
-  // Filter to only show verified dealers
-  const verifiedDealers = dealers.filter(dealer => dealer.verified);
+  // Filter to only show verified sellers
+  const verifiedSellers = sellers.filter(seller => seller.verified);
 
   if (isLoading) {
     return (
@@ -27,7 +27,7 @@ export default function Dealers() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <Store className="text-primary text-xl" />
-                <h2 className="text-xl font-bold">All Dealers</h2>
+                <h2 className="text-xl font-bold">All Sellers</h2>
               </div>
               <Skeleton className="h-8 w-16" />
             </div>
@@ -65,9 +65,9 @@ export default function Dealers() {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <Store className="w-16 h-16 text-destructive mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Failed to Load Dealers</h2>
+              <h2 className="text-xl font-semibold mb-2">Failed to Load Sellers</h2>
               <p className="text-muted-foreground mb-4">
-                Unable to fetch dealer information
+                Unable to fetch seller information
               </p>
               <Button onClick={() => window.location.reload()}>
                 Try Again
@@ -99,15 +99,15 @@ export default function Dealers() {
           </div>
 
           <div className="mb-4">
-            <p className="text-sm text-muted-foreground" data-testid="text-dealers-count">
-              {verifiedDealers.length} verified dealer{verifiedDealers.length !== 1 ? 's' : ''} at Abossey Okai
+            <p className="text-sm text-muted-foreground" data-testid="text-sellers-count">
+              {verifiedSellers.length} verified seller{verifiedSellers.length !== 1 ? 's' : ''} at Abossey Okai
             </p>
           </div>
 
-          {verifiedDealers.length > 0 ? (
+          {verifiedSellers.length > 0 ? (
             <div className="space-y-4">
-              {verifiedDealers.map((dealer) => (
-                <Link key={dealer.id} href={`/dealer/${dealer.id}`}>
+              {verifiedSellers.map((seller) => (
+                <Link key={seller.id} href={`/seller/${seller.id}`}>
                   <Card className="bg-card border-border hover:bg-card/80 transition-colors cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start space-x-4">
@@ -117,10 +117,10 @@ export default function Dealers() {
                         
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
-                            <h4 className="font-semibold" data-testid={`text-dealer-name-${dealer.id}`}>
-                              {dealer.shopName}
+                            <h4 className="font-semibold" data-testid={`text-seller-name-${seller.id}`}>
+                              {seller.shopName}
                             </h4>
-                            {dealer.verified && (
+                            {seller.verified && (
                               <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1">
                                 <CheckCircle className="w-3 h-3 mr-1" />
                                 Verified
@@ -130,19 +130,19 @@ export default function Dealers() {
                           
                           <div className="flex items-center text-sm text-muted-foreground mb-2">
                             <Star className="text-yellow-400 w-4 h-4 mr-1" />
-                            <span data-testid={`text-rating-${dealer.id}`}>{dealer.rating}</span>
+                            <span data-testid={`text-rating-${seller.id}`}>{seller.rating}</span>
                             <span className="mx-1">•</span>
-                            <span data-testid={`text-review-count-${dealer.id}`}>{dealer.reviewCount} reviews</span>
+                            <span data-testid={`text-review-count-${seller.id}`}>{seller.reviewCount} reviews</span>
                           </div>
                           
                           <div className="flex items-center text-sm text-muted-foreground mb-2">
                             <MapPin className="w-4 h-4 mr-1" />
-                            <span data-testid={`text-address-${dealer.id}`}>{dealer.address}</span>
+                            <span data-testid={`text-address-${seller.id}`}>{seller.address}</span>
                           </div>
 
-                          {dealer.description && (
-                            <p className="text-sm text-muted-foreground" data-testid={`text-description-${dealer.id}`}>
-                              {dealer.description}
+                          {seller.description && (
+                            <p className="text-sm text-muted-foreground" data-testid={`text-description-${seller.id}`}>
+                              {seller.description}
                             </p>
                           )}
                         </div>
@@ -155,9 +155,9 @@ export default function Dealers() {
           ) : (
             <div className="text-center py-12">
               <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Verified Dealers</h3>
+              <h3 className="text-lg font-semibold mb-2">No Verified Sellers</h3>
               <p className="text-muted-foreground">
-                No verified dealers are currently available
+                No verified sellers are currently available
               </p>
             </div>
           )}

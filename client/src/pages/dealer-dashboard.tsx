@@ -18,7 +18,7 @@ import { AVAILABILITY_OPTIONS } from "@/lib/constants";
 import ImageUpload from "@/components/image-upload";
 import Header from "@/components/layout/header";
 import BottomNav from "@/components/layout/bottom-nav";
-import type { Dealer, Part } from "@shared/schema";
+import type { Seller, Part } from "@shared/schema";
 
 const partSchema = z.object({
   name: z.string().min(1, "Part name is required"),
@@ -39,25 +39,25 @@ export default function DealerDashboard() {
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
   const [editingPart, setEditingPart] = useState<Part | null>(null);
 
-  const { data: dealer } = useQuery<Dealer>({
-    queryKey: ['/api/dealers/by-user', user?.id],
-    enabled: !!user && user.role === 'dealer',
+  const { data: seller } = useQuery<Seller>({
+    queryKey: ['/api/sellers/by-user', user?.id],
+    enabled: !!user && user.role === 'seller',
     queryFn: async () => {
-      const response = await fetch(`/api/dealers?userId=${user?.id}`);
-      if (!response.ok) throw new Error('Failed to fetch dealer');
-      const dealers = await response.json();
-      return dealers[0]; // Assuming one dealer per user
+      const response = await fetch(`/api/sellers?userId=${user?.id}`);
+      if (!response.ok) throw new Error('Failed to fetch seller');
+      const sellers = await response.json();
+      return sellers[0]; // Assuming one seller per user
     },
   });
 
   const { data: parts = [] } = useQuery<Part[]>({
-    queryKey: ['/api/parts', dealer?.id],
-    enabled: !!dealer,
+    queryKey: ['/api/parts', seller?.id],
+    enabled: !!seller,
   });
 
   const { data: contacts = [] } = useQuery<any[]>({
-    queryKey: ['/api/contacts', dealer?.id],
-    enabled: !!dealer,
+    queryKey: ['/api/contacts', seller?.id],
+    enabled: !!seller,
   });
 
   const addPartMutation = useMutation({
@@ -69,7 +69,7 @@ export default function DealerDashboard() {
         },
         body: JSON.stringify({
           ...partData,
-          dealerId: dealer?.id,
+          sellerId: seller?.id,
         }),
       });
 
@@ -80,7 +80,7 @@ export default function DealerDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/parts', dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/parts', seller?.id] });
       setIsAddPartDialogOpen(false);
       toast({
         title: "Part added",
@@ -113,7 +113,7 @@ export default function DealerDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/parts', dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/parts', seller?.id] });
       setEditingPart(null);
       toast({
         title: "Part updated",
@@ -142,7 +142,7 @@ export default function DealerDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/parts', dealer?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/parts', seller?.id] });
       toast({
         title: "Part deleted",
         description: "Your part has been deleted successfully",
@@ -200,7 +200,7 @@ export default function DealerDashboard() {
     }
   };
 
-  if (!user || user.role !== 'dealer') {
+  if (!user || user.role !== 'seller') {
     return (
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container flex items-center justify-center min-h-screen">
@@ -210,11 +210,11 @@ export default function DealerDashboard() {
     );
   }
 
-  if (!dealer) {
+  if (!seller) {
     return (
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container flex items-center justify-center min-h-screen">
-          <p className="text-center">Loading dealer information...</p>
+          <p className="text-center">Loading seller information...</p>
         </div>
       </div>
     );
@@ -231,7 +231,7 @@ export default function DealerDashboard() {
             <div>
               <h2 className="text-lg font-semibold">Dealer Dashboard</h2>
               <p className="text-sm text-muted-foreground" data-testid="text-dealer-name">
-                {dealer.shopName}
+                {seller.shopName}
               </p>
             </div>
             <Dialog open={isAddPartDialogOpen} onOpenChange={setIsAddPartDialogOpen}>

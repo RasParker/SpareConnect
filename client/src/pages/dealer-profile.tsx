@@ -9,17 +9,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { AVAILABILITY_OPTIONS } from "@/lib/constants";
-import type { DealerWithParts } from "@shared/schema";
+import type { SellerWithParts } from "@shared/schema";
 
 export default function DealerProfile() {
-  const [, params] = useRoute("/dealer/:id");
-  const dealerId = params?.id;
+  const [, params] = useRoute("/seller/:id");
+  const sellerId = params?.id;
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const { data: dealer, isLoading, error } = useQuery<DealerWithParts>({
-    queryKey: ['/api/dealers', dealerId],
-    enabled: !!dealerId,
+  const { data: seller, isLoading, error } = useQuery<SellerWithParts>({
+    queryKey: ['/api/sellers', sellerId],
+    enabled: !!sellerId,
   });
 
   const contactMutation = useMutation({
@@ -31,7 +31,7 @@ export default function DealerProfile() {
         },
         body: JSON.stringify({
           userId: user?.id,
-          dealerId,
+          sellerId,
           type,
         }),
       });
@@ -49,11 +49,11 @@ export default function DealerProfile() {
       contactMutation.mutate({ type });
     }
     
-    if (dealer) {
-      if (type === "whatsapp" && dealer.whatsapp) {
-        window.open(`https://wa.me/${dealer.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
+    if (seller) {
+      if (type === "whatsapp" && seller.whatsapp) {
+        window.open(`https://wa.me/${seller.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
       } else if (type === "call") {
-        window.location.href = `tel:${dealer.phone}`;
+        window.location.href = `tel:${seller.phone}`;
       }
     }
   };
@@ -127,7 +127,7 @@ export default function DealerProfile() {
     );
   }
 
-  if (error || !dealer) {
+  if (error || !seller) {
     return (
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container">
@@ -175,9 +175,9 @@ export default function DealerProfile() {
             </div>
             <div className="flex items-center justify-center space-x-2 mb-2">
               <h4 className="text-xl font-bold" data-testid="text-dealer-name">
-                {dealer.shopName}
+                {seller.shopName}
               </h4>
-              {dealer.verified && (
+              {seller.verified && (
                 <Badge className="bg-primary text-primary-foreground text-xs">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Verified
@@ -187,11 +187,11 @@ export default function DealerProfile() {
             <div className="flex items-center justify-center space-x-2 mb-2">
               <div className="flex items-center text-sm">
                 <Star className="text-yellow-400 w-4 h-4 mr-1" />
-                <span data-testid="text-rating">{dealer.rating} ({dealer.reviewCount} reviews)</span>
+                <span data-testid="text-rating">{seller.rating} ({seller.reviewCount} reviews)</span>
               </div>
             </div>
             <p className="text-muted-foreground text-sm" data-testid="text-description">
-              {dealer.description}
+              {seller.description}
             </p>
           </div>
 
@@ -203,17 +203,17 @@ export default function DealerProfile() {
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="text-primary w-5 h-5" />
-                <span data-testid="text-phone">{dealer.phone}</span>
+                <span data-testid="text-phone">{seller.phone}</span>
               </div>
-              {dealer.whatsapp && (
+              {seller.whatsapp && (
                 <div className="flex items-center space-x-3">
                   <MessageCircle className="text-green-500 w-5 h-5" />
-                  <span data-testid="text-whatsapp">{dealer.whatsapp}</span>
+                  <span data-testid="text-whatsapp">{seller.whatsapp}</span>
                 </div>
               )}
               <div className="flex items-center space-x-3">
                 <MapPin className="text-primary w-5 h-5" />
-                <span data-testid="text-address">{dealer.address}</span>
+                <span data-testid="text-address">{seller.address}</span>
               </div>
             </CardContent>
           </Card>
@@ -224,8 +224,8 @@ export default function DealerProfile() {
               <CardTitle className="text-base">Available Parts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {dealer.parts.length > 0 ? (
-                dealer.parts.map((part) => (
+              {seller.parts.length > 0 ? (
+                seller.parts.map((part) => (
                   <div key={part.id} className="flex items-center justify-between p-3 bg-muted rounded-md">
                     <div className="flex items-center space-x-3">
                       {part.imageUrl ? (
