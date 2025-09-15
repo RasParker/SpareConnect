@@ -13,6 +13,7 @@ import { z } from "zod";
 import multer from 'multer';
 import path from 'path';
 import express from 'express';
+import { seedDatabase } from './seed';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -305,6 +306,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ imageUrl: `/uploads/${req.file.filename}` });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Database seeding route (for development)
+  app.post("/api/seed", async (req, res) => {
+    try {
+      if (process.env.NODE_ENV !== 'development') {
+        return res.status(403).json({ message: "Seeding only allowed in development" });
+      }
+      
+      const stats = await seedDatabase();
+      res.json({ 
+        message: "Database seeded successfully", 
+        stats 
+      });
+    } catch (error: any) {
+      console.error("Seeding error:", error);
       res.status(500).json({ message: error.message });
     }
   });
