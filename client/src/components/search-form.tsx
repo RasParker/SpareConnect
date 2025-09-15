@@ -55,7 +55,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Find Your Spare Parts</h2>
-          <p className="text-muted-foreground">Connect with verified dealers at Abossey Okai</p>
+          <p className="text-muted-foreground">Connect with verified sellers at Abossey Okai</p>
         </div>
 
         <div className="bg-card rounded-lg p-4 space-y-4 border border-border">
