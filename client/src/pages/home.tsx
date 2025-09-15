@@ -101,8 +101,8 @@ export default function Home() {
       <div className="app-container">
         <Header />
 
-        <SearchForm 
-          onSearch={handleSearch} 
+        <SearchForm
+          onSearch={handleSearch}
           isLoading={searchMutation.isPending}
         />
 
