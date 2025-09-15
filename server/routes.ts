@@ -170,14 +170,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(parts);
       }
       
-      // Return all parts if no seller specified
-      const sellers = await storage.getAllSellers();
-      const allParts = [];
-      for (const seller of sellers) {
-        const parts = await storage.getPartsBySellerId(seller.id);
-        allParts.push(...parts);
-      }
-      res.json(allParts);
+      // Return all parts with seller information if no seller specified
+      const partsWithSeller = await storage.getAllPartsWithSeller();
+      res.json(partsWithSeller);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

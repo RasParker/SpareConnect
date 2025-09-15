@@ -11,7 +11,7 @@ import DealerProfile from "@/pages/dealer-profile";
 import DealerDashboard from "@/pages/dealer-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Saved from "@/pages/saved";
-import Dealers from "@/pages/dealers";
+import Parts from "@/pages/dealers";
 import Profile from "@/pages/profile";
 import Login from "@/pages/login";
 
@@ -24,7 +24,7 @@ function Router() {
       <Route path="/dealer-dashboard" component={DealerDashboard} />
       <Route path="/admin-dashboard" component={AdminDashboard} />
       <Route path="/saved" component={Saved} />
-      <Route path="/dealers" component={Dealers} />
+      <Route path="/parts" component={Parts} />
       <Route path="/profile" component={Profile} />
       <Route path="/login" component={Login} />
       <Route component={NotFound} />

@@ -12,6 +12,7 @@ import {
   type Contact, 
   type InsertContact,
   type SellerWithParts,
+  type PartWithSeller,
   type SearchResult,
   users,
   sellers,
@@ -42,6 +43,7 @@ export interface IStorage {
   // Part operations
   getPart(id: string): Promise<Part | undefined>;
   getPartsBySellerId(sellerId: string): Promise<Part[]>;
+  getAllPartsWithSeller(): Promise<PartWithSeller[]>;
   createPart(part: InsertPart): Promise<Part>;
   updatePart(id: string, updates: Partial<Part>): Promise<Part | undefined>;
   deletePart(id: string): Promise<boolean>;
@@ -145,6 +147,31 @@ export class DatabaseStorage implements IStorage {
 
   async getPartsBySellerId(sellerId: string): Promise<Part[]> {
     return await db.select().from(parts).where(eq(parts.sellerId, sellerId));
+  }
+
+  async getAllPartsWithSeller(): Promise<PartWithSeller[]> {
+    const allParts = await db.select().from(parts);
+    const partsWithSeller: PartWithSeller[] = [];
+
+    for (const part of allParts) {
+      const seller = await this.getSeller(part.sellerId);
+      if (seller) {
+        partsWithSeller.push({
+          ...part,
+          seller: {
+            id: seller.id,
+            shopName: seller.shopName,
+            address: seller.address,
+            phone: seller.phone,
+            whatsapp: seller.whatsapp,
+            verified: seller.verified,
+            rating: seller.rating
+          }
+        });
+      }
+    }
+
+    return partsWithSeller;
   }
 
   async createPart(insertPart: InsertPart): Promise<Part> {

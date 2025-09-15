@@ -125,6 +125,10 @@ export type SellerWithParts = Seller & {
   user: Pick<User, 'username' | 'email'>;
 };
 
+export type PartWithSeller = Part & {
+  seller: Pick<Seller, 'id' | 'shopName' | 'address' | 'phone' | 'whatsapp' | 'verified' | 'rating'>;
+};
+
 export type SearchResult = {
   seller: SellerWithParts;
   matchingParts: Part[];
