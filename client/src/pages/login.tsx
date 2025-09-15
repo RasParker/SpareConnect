@@ -49,7 +49,7 @@ export default function Login() {
             <CardContent className="space-y-2">
               <div className="text-xs text-muted-foreground">
                 <p><strong>Admin:</strong> admin / admin123</p>
-                <p><strong>Dealer:</strong> autopartsghana / dealer123</p>
+                <p><strong>Seller:</strong> autopartsghana / dealer123</p>
                 <p><strong>Buyer:</strong> Create new account</p>
               </div>
             </CardContent>

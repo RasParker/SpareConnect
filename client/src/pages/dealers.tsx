@@ -22,7 +22,7 @@ export default function Dealers() {
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container">
           <Header />
-          
+
           <section className="p-4">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -49,7 +49,7 @@ export default function Dealers() {
               ))}
             </div>
           </section>
-          
+
           <BottomNav />
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function Dealers() {
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container">
           <Header />
-          
+
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <Store className="w-16 h-16 text-destructive mx-auto mb-4" />
@@ -74,7 +74,7 @@ export default function Dealers() {
               </Button>
             </div>
           </div>
-          
+
           <BottomNav />
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function Dealers() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <Store className="text-primary text-xl" />
-              <h2 className="text-xl font-bold">All Dealers</h2>
+              <h2 className="text-xl font-bold">All Sellers</h2>
             </div>
             <Button variant="outline" size="sm">
               <Filter className="w-4 h-4 mr-1" />
@@ -114,7 +114,7 @@ export default function Dealers() {
                         <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
                           <Store className="text-primary" />
                         </div>
-                        
+
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <h4 className="font-semibold" data-testid={`text-seller-name-${seller.id}`}>
@@ -127,14 +127,14 @@ export default function Dealers() {
                               </Badge>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center text-sm text-muted-foreground mb-2">
                             <Star className="text-yellow-400 w-4 h-4 mr-1" />
                             <span data-testid={`text-rating-${seller.id}`}>{seller.rating}</span>
                             <span className="mx-1">•</span>
                             <span data-testid={`text-review-count-${seller.id}`}>{seller.reviewCount} reviews</span>
                           </div>
-                          
+
                           <div className="flex items-center text-sm text-muted-foreground mb-2">
                             <MapPin className="w-4 h-4 mr-1" />
                             <span data-testid={`text-address-${seller.id}`}>{seller.address}</span>

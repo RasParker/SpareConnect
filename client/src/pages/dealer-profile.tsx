@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AVAILABILITY_OPTIONS } from "@/lib/constants";
 import type { SellerWithParts } from "@shared/schema";
 
-export default function DealerProfile() {
+export default function SellerProfile() {
   const [, params] = useRoute("/seller/:id");
   const sellerId = params?.id;
   const { user } = useAuth();
@@ -48,7 +48,7 @@ export default function DealerProfile() {
     if (user) {
       contactMutation.mutate({ type });
     }
-    
+
     if (seller) {
       if (type === "whatsapp" && seller.whatsapp) {
         window.open(`https://wa.me/${seller.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
@@ -137,12 +137,12 @@ export default function DealerProfile() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <h3 className="text-lg font-semibold">Dealer Profile</h3>
+            <h3 className="text-lg font-semibold">Seller Profile</h3>
             <div className="w-10" />
           </div>
 
           <div className="p-4 text-center py-8">
-            <p className="text-destructive">Failed to load dealer profile</p>
+            <p className="text-destructive">Failed to load seller profile</p>
             <Link href="/">
               <Button className="mt-4">Go Back</Button>
             </Link>
@@ -162,19 +162,19 @@ export default function DealerProfile() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <h3 className="text-lg font-semibold">Dealer Profile</h3>
+          <h3 className="text-lg font-semibold">Seller Profile</h3>
           <div className="w-10" />
         </div>
 
         {/* Content */}
         <div className="p-4 space-y-6">
-          {/* Dealer Info */}
+          {/* Seller Info */}
           <div className="text-center">
             <div className="w-20 h-20 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
               <Store className="text-primary text-2xl" />
             </div>
             <div className="flex items-center justify-center space-x-2 mb-2">
-              <h4 className="text-xl font-bold" data-testid="text-dealer-name">
+              <h4 className="text-xl font-bold" data-testid="text-seller-name">
                 {seller.shopName}
               </h4>
               {seller.verified && (

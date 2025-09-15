@@ -89,14 +89,14 @@ export default function Profile() {
           {user.role === 'dealer' && (
             <Card className="bg-card border-border mb-4">
               <CardContent className="p-4">
-                <Link href="/dealer-dashboard">
+                <Link href="/seller-dashboard">
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    data-testid="button-dealer-dashboard"
+                    data-testid="button-seller-dashboard"
                   >
                     <Store className="w-4 h-4 mr-2" />
-                    Dealer Dashboard
+                    Seller Dashboard
                   </Button>
                 </Link>
               </CardContent>

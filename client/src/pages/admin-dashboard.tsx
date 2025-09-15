@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const { toast } = useToast();
 
   const { data: analytics } = useQuery<{
-    totalDealers: number;
+    totalSellers: number;
     totalParts: number;
     totalSearches: number;
     pendingVerifications: number;
@@ -44,13 +44,13 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/dealers/pending/verification'] });
       queryClient.invalidateQueries({ queryKey: ['/api/analytics'] });
       toast({
-        title: "Dealer approved",
-        description: "The dealer has been verified successfully",
+        title: "Seller approved",
+        description: "The seller has been verified successfully",
       });
     },
     onError: () => {
       toast({
-        title: "Failed to approve dealer",
+        title: "Failed to approve seller",
         description: "Please try again",
         variant: "destructive",
       });
@@ -66,13 +66,13 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/dealers/pending/verification'] });
       toast({
-        title: "Dealer rejected",
-        description: "The dealer application has been rejected",
+        title: "Seller rejected",
+        description: "The seller application has been rejected",
       });
     },
     onError: () => {
       toast({
-        title: "Failed to reject dealer",
+        title: "Failed to reject seller",
         description: "Please try again",
         variant: "destructive",
       });
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
   };
 
   const handleRejectDealer = (dealerId: string) => {
-    if (confirm("Are you sure you want to reject this dealer application?")) {
+    if (confirm("Are you sure you want to reject this seller application?")) {
       rejectDealerMutation.mutate(dealerId);
     }
   };
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
 
         {/* Pending Dealer Verifications */}
         <div className="p-4">
-          <h3 className="font-semibold mb-4">Pending Dealer Verifications</h3>
+          <h3 className="font-semibold mb-4">Pending Seller Verifications</h3>
           <div className="space-y-3">
             {pendingDealers.length > 0 ? (
               pendingDealers.map((dealer) => (
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium" data-testid={`text-dealer-name-${dealer.id}`}>
+                        <p className="font-medium" data-testid={`text-seller-name-${dealer.id}`}>
                           {dealer.shopName}
                         </p>
                         <p className="text-sm text-muted-foreground" data-testid={`text-address-${dealer.id}`}>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
                 <CardContent className="p-8 text-center">
                   <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">No pending verifications</p>
-                  <p className="text-sm text-muted-foreground">All dealers are up to date</p>
+                  <p className="text-sm text-muted-foreground">All sellers are up to date</p>
                 </CardContent>
               </Card>
             )}

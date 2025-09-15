@@ -204,7 +204,7 @@ export default function DealerDashboard() {
     return (
       <div className="dark bg-background text-foreground min-h-screen">
         <div className="app-container flex items-center justify-center min-h-screen">
-          <p className="text-center">Access denied. Dealer account required.</p>
+          <p className="text-center">Access denied. Seller account required.</p>
         </div>
       </div>
     );
@@ -229,8 +229,8 @@ export default function DealerDashboard() {
         <div className="bg-card p-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Dealer Dashboard</h2>
-              <p className="text-sm text-muted-foreground" data-testid="text-dealer-name">
+              <h2 className="text-lg font-semibold">Seller Dashboard</h2>
+              <p className="text-sm text-muted-foreground" data-testid="text-seller-name">
                 {seller.shopName}
               </p>
             </div>
